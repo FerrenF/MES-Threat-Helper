@@ -15,28 +15,28 @@ namespace MESHelper.Threat.Util
         {
             if (!debug) return;
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(message);
+            Console.WriteLine(message + "\n");
             Console.ResetColor();
         }
         public void Error(string message)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(message);
-            Console.Error.WriteLine(message);
+            Console.WriteLine(message + "\n");
+            Console.Error.WriteLine(message + "\n");
             Console.ResetColor();
         }
 
         public void Info(string message)
         {
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine(message);
+            Console.WriteLine(message + "\n");
         }
 
         public void Warn(string message)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(message);
-            Console.Error.WriteLine(message);
+            Console.WriteLine(message + "\n");
+            Console.Error.WriteLine(message + "\n");
         }
     }
 }
