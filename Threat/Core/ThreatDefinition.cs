@@ -1,9 +1,8 @@
-using System.Security.Policy;
 using System.Xml.Serialization;
 
 namespace MESHelper.Threat.Core
 {
-    public abstract class ThreatDefinition : IEquatable<ThreatDefinition>
+    public abstract class ThreatDefinition : System.IEquatable<ThreatDefinition>
     {
         public abstract string GetId();
         [XmlAttribute("Threat")]
@@ -17,9 +16,7 @@ namespace MESHelper.Threat.Core
 
         [XmlAttribute("FullVolumeThreat")]
         public float FullVolumeThreat { get; set; } = 0.0f;
-        public abstract override bool Equals(object obj);
         public abstract override int GetHashCode();
         public abstract bool Equals(ThreatDefinition other);
-        public abstract ThreatDefinition ToDefinition();
     }
 }

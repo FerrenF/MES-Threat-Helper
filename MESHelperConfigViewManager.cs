@@ -1,23 +1,16 @@
-﻿using MESHelper.Configuration;
+﻿using MESHelper.Threat.Configuration;
 using MESHelper.Threat.Core;
 using ScintillaNET;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
-using static System.Windows.Forms.AxHost;
 
 namespace MESHelper
 {
     public class MESHelperConfigvIEWManager
     {
         private MESHelperState _state;
-        private ConfigThreat CurrentThreatConfig => _state.CurrentThreatConfiguration;
+        private ThreatSettings CurrentThreatConfig => _state.CurrentThreatConfiguration;
         private Scintilla CurrentXMLEditor => _state.MainViewInstance.xmlEditor;
 
         private BindingList<BlockCategoryThreat> categoryBinding = new BindingList<BlockCategoryThreat>();
@@ -58,7 +51,7 @@ namespace MESHelper
             ToConfig    // bindings → config
         }
 
-        private void SyncMultipliers(ConfigThreat config, SyncDirection direction)
+        private void SyncMultipliers(ThreatSettings config, SyncDirection direction)
         {
             foreach (var named in multiplierList)
             {
@@ -129,7 +122,7 @@ namespace MESHelper
 
 
         private void SyncMultiplierBindingsToConfig() => SyncMultipliers(CurrentThreatConfig, SyncDirection.ToConfig);
-        private void SyncMultiplierindingsFromConfig(ConfigThreat config) => SyncMultipliers(config, SyncDirection.FromConfig);
+        private void SyncMultiplierindingsFromConfig(ThreatSettings config) => SyncMultipliers(config, SyncDirection.FromConfig);
 
        
         
@@ -263,23 +256,23 @@ namespace MESHelper
 
         private void ChangedConfigState(
             MESHelperConfigvIEWManager mESHelperConfigManager, 
-            ConfigThreat currentThreatConfig,
-            ConfigThreat? oldThreatConfig) => _state.TriggerChangedThreatConfigState(mESHelperConfigManager, currentThreatConfig, oldThreatConfig);
+            ThreatSettings currentThreatConfig,
+            ThreatSettings? oldThreatConfig) => _state.TriggerChangedThreatConfigState(mESHelperConfigManager, currentThreatConfig, oldThreatConfig);
 
         
-        private static ConfigThreat DeserializeConfig(string xmlContent)
+        private static ThreatSettings DeserializeConfig(string xmlContent)
         {
-            var serializer = new XmlSerializer(typeof(ConfigThreat));
+            var serializer = new XmlSerializer(typeof(ThreatSettings));
             using var reader = new StringReader(xmlContent);
-            return (ConfigThreat)serializer.Deserialize(reader);
+            return (ThreatSettings)serializer.Deserialize(reader);
         }
         private void ReloadConfigurationFromDocument()
         {
    
-            var serializer = new XmlSerializer(typeof(ConfigThreat));
+            var serializer = new XmlSerializer(typeof(ThreatSettings));
             var reader = _state.CurrentXmlDocument.CreateReader();
 
-            var newConfig = serializer.Deserialize(reader) as ConfigThreat;
+            var newConfig = serializer.Deserialize(reader) as ThreatSettings;
             var oldConfig = CurrentThreatConfig != null ? CurrentThreatConfig.copy() : null;
 
             if (newConfig == null) return;

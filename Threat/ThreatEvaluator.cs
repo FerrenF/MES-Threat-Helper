@@ -1,6 +1,6 @@
 ﻿using MESHelper;
-using MESHelper.Configuration;
 using MESHelper.Threat.CategoryProvider;
+using MESHelper.Threat.Configuration;
 using MESHelper.Threat.Core;
 using MESHelper.Threat.Profile;
 using MESHelper.Threat.Util;
@@ -10,19 +10,23 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-namespace ModularEncountersSystems.Entities { 
+namespace MESHelper.Threat {
 
-    public class ThreatEvaluator  {
+    public class ThreatEvaluator
+    {
 
-        public static void Log(string m) => Console.Write(m);
-        public static void Debug(string m) => Console.Write(m);
+        public static void Log(string m) => Logger.Info(m);
+        public static void Debug(string m) => Logger.Debug(m);
+        public static void Errror(string m) => Logger.Error(m);
 
         public static TLogInterface Logger;
         private float DEFAULT_THREAT = 1.0f;
         private bool config_initialized = false;
-        private bool test_mode = true;
-        private EntityThreatProfile? GridThreatProfile;
-        private ConfigThreat? CurrentThreatSettings;
+
+        private bool test_mode = false;
+        private EntityThreatProfile GridThreatProfile;
+        private ThreatSettings CurrentThreatSettings;
+
         public string ProfileName
         {
             get
@@ -30,25 +34,29 @@ namespace ModularEncountersSystems.Entities {
                 return GridThreatProfile.DisplayName ?? "No Name";
             }
         }
-        public ThreatEvaluator(EntityThreatProfile profile) 
-        { 
-            GridThreatProfile = profile;         
-            CurrentThreatSettings = MESHelperState.Instance.CurrentThreatConfiguration;
-            if (CurrentThreatSettings != null) config_initialized = true;        
+
+        public ThreatEvaluator(EntityThreatProfile profile)
+        {
+            GridThreatProfile = profile;
+            CurrentThreatSettings = MESHelperState.Instance?.CurrentThreatConfiguration;
+            if (CurrentThreatSettings != null)
+                config_initialized = true;
+            else
+                Errror("[CORE] Attempt to initialize threat settings resulted in a null value...");
         }
+
         public float evaluate()
         {
             if (!config_initialized || CurrentThreatSettings == null)
             {
-                Log($"Threat settings were not initialized and an evaluation could not complete for entity '{ProfileName}'.");
+                Errror($"[CORE] Threat settings not initialized. Could not evaluate entity '{ProfileName}'.");
                 return DEFAULT_THREAT;
             }
 
             float result = 0;
-
             if (GridThreatProfile == null)
             {
-                Log($"Threat settings profile passed in to evaluate entity '{ProfileName}' was empty.");
+                Errror($"[CORE] Threat profile passed in to evaluate: '{ProfileName}', was empty.");
                 return DEFAULT_THREAT;
             }
 
@@ -130,7 +138,7 @@ namespace ModularEncountersSystems.Entities {
         {
             if (!config_initialized || GridThreatProfile == null || CurrentThreatSettings == null)
             {
-                Log($"[CAT] Threat settings were not initialized and an evaluation could not complete for entity '{ProfileName}'.");
+                Errror($"[CORE] Threat settings not initialized. Could not evaluate entity '{ProfileName}'.");
                 return DEFAULT_THREAT;
             }
 
@@ -138,35 +146,27 @@ namespace ModularEncountersSystems.Entities {
             var blockGroupSet = GridThreatProfile.Blocks;
             if (blockGroupSet == null)
             {
-                Debug($"[CAT] The threat profile for entity '{ProfileName}' did not contain any blocks.");
+                Debug($"[CAT] Threat profile '{ProfileName}' did not contain any blocks.");
                 return DEFAULT_THREAT;
             }
             Debug($"[CAT] Evaluating {blockGroupSet.Count} blocks.");
             float threatTotal = 0;
             var blockCategoryThreat = CurrentThreatSettings.BlockCategoryThreatEntries;
 
-            if (CurrentThreatSettings.BlockCategoryThreatEntries == null)
-            {
-                Debug($"[CAT] Category settings for current threat configuration were null.");
-                return DEFAULT_THREAT;
-            }
             Dictionary<BlockCategoryThreat, List<float>> catSpecificThreats = new Dictionary<BlockCategoryThreat, List<float>>();
             foreach (var catThreat in blockCategoryThreat)
             {
                 string categoryName = catThreat.Category;
 
                 if (categoryName == null)
-                {
-                    Debug($"[CAT] Encountered a null category name assigned to block {catThreat.GetId()}...");
-                }
+                    Logger.Warn($"[CAT] Encountered a null category name assigned to block {catThreat.GetId()}. Interesting...");
 
                 var matchingBlocks = blockGroupSet.Where(b => !string.IsNullOrWhiteSpace(b.Category) && b.Category.Equals(categoryName, StringComparison.OrdinalIgnoreCase)).ToList();
-
                 Debug($"[CAT] Matched {matchingBlocks.Count} blocks to category {categoryName}.");
 
                 foreach (var block in matchingBlocks)
                     if (evaluatedBlockIDs.Contains(block.Id))
-                        Debug($"[CAT] {block.Id} has already been evaluated for profile {ProfileName} individually. Skipping consideration for category {block.Category}.");
+                        Debug($"[CAT] {block.Id} has already been evaluated. It will not be evaluated for category {block.Category}.");
 
                 matchingBlocks.RemoveAll((b) => evaluatedBlockIDs.Contains(b.Id));
 
@@ -189,6 +189,7 @@ namespace ModularEncountersSystems.Entities {
                         {
                             if (test_mode)
                                 tracker.TotalCurrentVolume = (float)(new Random().NextDouble() * (tracker.TotalMaxVolume * .75));
+
                             addedScore += makeVolumeScore("CAT", catThreat.FullVolumeThreat, tracker);
                         }
 
@@ -225,13 +226,13 @@ namespace ModularEncountersSystems.Entities {
                 {
                     float res = threatDetected.FirstOrDefault();
                     threatTotal += res;
-                    Debug($"[CAT] Category {t.Key} added {res} threat to profile '{ProfileName}'.");
+                    Debug($"[CAT] {t.Key.Category} added {res} threat to profile '{ProfileName}'.");
                 }
                 else if (threatDetected.Count <= threatDef.MultiplierThreshold)
                 {
                     float res = threatDetected.Sum();
                     threatTotal += res;
-                    Debug($"[CAT] Category {t.Key} added {res} threat to profile '{ProfileName}'.");
+                    Debug($"[CAT] {t.Key.Category} added {res} threat to profile '{ProfileName}'.");
                 }
                 else
                 {
@@ -249,7 +250,7 @@ namespace ModularEncountersSystems.Entities {
                     }
                     float res = (runningScore + runningCum);
                     threatTotal += res;
-                    Debug($"[CAT] Category {t.Key} added {res} threat to profile '{ProfileName}'. {runningCum} of it was added from multiplier penalties.");
+                    Debug($"[CAT] Category {t.Key.Category} added {res} threat to profile '{ProfileName}'. {runningCum} of it was added from multiplier penalties.");
                 }
             }
             return threatTotal;
@@ -290,7 +291,7 @@ namespace ModularEncountersSystems.Entities {
                 if (blockTracker.Count <= 0)
                     continue;
 
-                var matchingSingleBlockThreat = singleBlockThreats.FirstOrDefault((item) => item?.GetId() == blockTracker.Id);
+                var matchingSingleBlockThreat = singleBlockThreats.FirstOrDefault((item) => item.GetId() == blockTracker.Id);
                 if (matchingSingleBlockThreat == null)
                 {
                     Debug($"[BLK] There are no matches for ID '{blockTracker.Id} in current threat settings.");
@@ -303,7 +304,6 @@ namespace ModularEncountersSystems.Entities {
 
                 for (int i = 0; i < blockTracker.Count; i++)
                     blockSpecificThreats[matchingSingleBlockThreat].Add(matchingSingleBlockThreat.Threat);
-
 
 
                 if (blockTracker.TotalMaxVolume > 0 && matchingSingleBlockThreat.FullVolumeThreat != 0)
@@ -322,8 +322,6 @@ namespace ModularEncountersSystems.Entities {
 
                 if (threatDetected.Count == 0)
                     continue;
-
-
 
                 if (threatDetected.Count == 1)
                 {
@@ -359,7 +357,6 @@ namespace ModularEncountersSystems.Entities {
 
             return threatTotal;
         }
-
 
 
 

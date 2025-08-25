@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace MESHelper.Threat.Profile
 {

@@ -1,4 +1,4 @@
-﻿using MESHelper.Configuration;
+﻿using MESHelper.Threat.Configuration;
 using MESHelper.Event;
 using MESHelper.Threat.Core;
 using ScintillaNET;
@@ -155,7 +155,7 @@ namespace MESHelper
         }
 
 
-        public void UpdateFromConfigThreat(ConfigThreat config)
+        public void UpdateFromConfigThreat(ThreatSettings config)
         {
             var root = CurrentXmlDocument?.Root;
             if (root == null) return;

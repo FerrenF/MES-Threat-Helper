@@ -1,4 +1,4 @@
-﻿using MESHelper.Configuration;
+﻿using MESHelper.Threat.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +11,13 @@ namespace MESHelper.Event
     public class ChangedConfigEventArgs : EventArgs
     {
         public object Sender { get; }
-        public ConfigThreat? OldConfig { get; }
-        public ConfigThreat CurrentConfig { get; }
+        public ThreatSettings? OldConfig { get; }
+        public ThreatSettings CurrentConfig { get; }
 
         public ChangedConfigEventArgs(
             object sender,
-            ConfigThreat newConfig,
-            ConfigThreat? oldThreat
+            ThreatSettings newConfig,
+            ThreatSettings? oldThreat
             )
         {
             Sender = sender;

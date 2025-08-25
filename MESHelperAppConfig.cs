@@ -1,5 +1,4 @@
-﻿using MESHelper.Configuration;
-using MESHelper.Event;
+﻿using MESHelper.Event;
 using MESHelper.Threat.Profile;
 using Microsoft.VisualBasic.Logging;
 using System;

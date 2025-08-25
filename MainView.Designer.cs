@@ -1,4 +1,4 @@
-﻿using MESHelper.Configuration;
+﻿using MESHelper.Threat.Configuration;
 using MESHelper.Threat.Core;
 using ScintillaNET;
 using System.ComponentModel;
@@ -20,7 +20,7 @@ namespace MESHelper
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        private ConfigThreat currentThreatConfiguration;
+        private ThreatSettings currentThreatConfiguration;
         public Scintilla xmlEditor;
         public DataGridView CategoryTable;
         public DataGridView BlockTable;

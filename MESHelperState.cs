@@ -1,17 +1,9 @@
-﻿using MESHelper.Configuration;
-using MESHelper.Event;
+﻿using MESHelper.Event;
+using MESHelper.Threat;
+using MESHelper.Threat.Configuration;
 using MESHelper.Threat.Util;
-using Microsoft.VisualBasic.Logging;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
-using static System.Windows.Forms.AxHost;
 
 namespace MESHelper
 {
@@ -65,7 +57,7 @@ namespace MESHelper
 
         public event EventHandler<ChangedConfigEventArgs> OnChangedThreatConfigState;
 
-        public void TriggerChangedThreatConfigState(object sender, ConfigThreat currentThreatConfig, ConfigThreat? oldThreatConfig) 
+        public void TriggerChangedThreatConfigState(object sender, ThreatSettings currentThreatConfig, ThreatSettings? oldThreatConfig) 
             => OnChangedThreatConfigState?.Invoke(sender, new ChangedConfigEventArgs(sender, currentThreatConfig, oldThreatConfig));
 
 
@@ -145,6 +137,7 @@ namespace MESHelper
         public static MESHelperState? init_state() {
             if(StateInitialized) return Instance;
             Instance = new MESHelperState();
+            ThreatEvaluator.Logger = TDesktopLogger.Default;
             return Instance;
         }
 
@@ -173,8 +166,8 @@ namespace MESHelper
 
     
 
-        private ConfigThreat _currentThreatConfiguration;
-        public ConfigThreat CurrentThreatConfiguration
+        private ThreatSettings _currentThreatConfiguration;
+        public ThreatSettings CurrentThreatConfiguration
         {
             get => _currentThreatConfiguration;
             set

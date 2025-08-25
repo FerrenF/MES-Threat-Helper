@@ -9,34 +9,35 @@ namespace MESHelper.Threat.Util
 {
     public class TDesktopLogger : TLogInterface
     {
-        private static bool debug = false;
+        private static bool debug = true;
         public static bool SetDebug { get=>debug; set=>debug=value; }
+        public static TDesktopLogger Default = new TDesktopLogger();
         public void Debug(string message)
         {
             if (!debug) return;
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(message + "\n");
+            Console.WriteLine(message + '\r');         
             Console.ResetColor();
         }
         public void Error(string message)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(message + "\n");
-            Console.Error.WriteLine(message + "\n");
+            Console.WriteLine(message + '\r');
+            Console.Error.WriteLine(message);
             Console.ResetColor();
         }
 
         public void Info(string message)
         {
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine(message + "\n");
+            Console.WriteLine(message + '\r');
         }
 
         public void Warn(string message)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(message + "\n");
-            Console.Error.WriteLine(message + "\n");
+            Console.WriteLine(message + '\r');
+            Console.Error.WriteLine(message);
         }
     }
 }

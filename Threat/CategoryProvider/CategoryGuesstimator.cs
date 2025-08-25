@@ -129,6 +129,9 @@ namespace MESHelper.Threat.CategoryProvider
                 return "Medical";
             if (typeId.Contains("tank") || subtypeId.Contains("tank") || displayName.Contains("tank"))
                 return "Production";
+            if (typeId.Contains("generator") || subtypeId.Contains("generator") || displayName.Contains("generator"))
+                return "Production";
+            
 
             var targetingGroups = def.Element("TargetingGroups")?.Elements("string").Select(s => s.Value).ToList() ?? new List<string>();
             if (targetingGroups.Contains("Propulsion"))

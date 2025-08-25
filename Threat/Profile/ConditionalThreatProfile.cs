@@ -1,10 +1,11 @@
-using MESHelper.Threat.Core;
+using MESHelper.Threat.Configuration;
+using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 
 namespace MESHelper.Threat.Profile {
 
     [XmlRoot("ConditionalThreatProfile")]
-    public class ConditionalThreatProfile
+    public class ConditionalThreatProfile : ThreatSettingsBase
     {
         public enum ThreatProfileIdentifierType
         {
@@ -20,37 +21,43 @@ namespace MESHelper.Threat.Profile {
             Contains
         }
 
+        [JsonInclude]
         [XmlAttribute("Name")]
         public string Name { get; set; } = string.Empty;
 
+        [JsonInclude]
         [XmlAttribute("Identifier")]
         public ThreatProfileIdentifierType Identifier;
 
+        [JsonInclude]
         [XmlAttribute("Condition")]
         public ThreatProfileConditionType Condition;
 
+        [JsonInclude]
         [XmlAttribute("Value")]
-        public ThreatProfileConditionType Value;
+        public string Value;
 
-        [XmlArray("BlockThreat")]
-        [XmlArrayItem("Block")]
-        public List<SingleBlockThreat> SingleBlockThreatEntries;
+        [JsonInclude]
+        [XmlAttribute("Importance")]
+        public int Importance;
 
-        [XmlArray("CategoryThreat")]
-        [XmlArrayItem("Category")]
-        public List<BlockCategoryThreat> BlockCategoryThreatEntries;
-
-        [XmlElement("GridTypeThreatMultipliers")]
-        public GridTypeThreatMultiplier GridTypeMultipliers;
-
-        [XmlElement("PowerOutputMultipliers")]
-        public GridTypeThreatMultiplier GridPowerOutputMultipliers;
-
-        [XmlElement("BoundingBoxSizeMultipliers")]
-        public GridTypeThreatMultiplier BoundingBoxSizeMultipliers;
-
-        [XmlElement("ThreatPerBlockMultipliers")]
-        public GridTypeThreatMultiplier ThreatPerBlockMultipliers;
-
+        public new ConditionalThreatProfile copy()
+        {
+            return new ConditionalThreatProfile
+            {
+                ThreatModVersion = this.ThreatModVersion,
+                SingleBlockThreatEntries = this.SingleBlockThreatEntries,
+                BlockCategoryThreatEntries = this.BlockCategoryThreatEntries,
+                GridTypeMultipliers = this.GridTypeMultipliers,
+                GridPowerOutputMultipliers = this.GridPowerOutputMultipliers,
+                BoundingBoxSizeMultipliers = this.BoundingBoxSizeMultipliers,
+                ThreatPerBlockMultipliers = this.ThreatPerBlockMultipliers,
+                Name = this.Name,
+                Identifier = this.Identifier,
+                Condition = this.Condition,
+                Value = this.Value,
+                Importance = this.Importance,
+            };
+        }
     }
 }
